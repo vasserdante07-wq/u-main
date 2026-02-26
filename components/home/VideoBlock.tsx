@@ -9,11 +9,14 @@ const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), {
 
 const VideoBlockStyles = styled.div`
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 120px);
-  padding: 40px 0;
+  padding: 24px 0 40px;
+  ${media.medium`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 120px);
+    padding: 40px 0;
+  `}
 
   .player-wrapper {
     width: 100%;

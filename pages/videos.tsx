@@ -21,11 +21,14 @@ const videos = [
 
 const VideoPageStyles = styled.div`
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 120px);
-  padding: 40px 0;
+  padding: 24px 0 40px;
+  ${media.medium`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 120px);
+    padding: 40px 0;
+  `}
 
   .carousel-wrapper {
     position: relative;

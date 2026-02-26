@@ -63,7 +63,8 @@ const MosaicGridStyles = styled.div`
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: 0 50px;
+    padding: 0;
+    ${media.medium`padding: 0 50px;`}
 
     .carousel-arrow {
       position: absolute;
@@ -78,10 +79,11 @@ const MosaicGridStyles = styled.div`
       border-radius: 50%;
       font-size: 18px;
       cursor: pointer;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       transition: background 0.2s;
+      ${media.medium`display: flex;`}
 
       &:hover {
         background: rgba(0, 0, 0, 0.8);
@@ -97,6 +99,7 @@ const MosaicGridStyles = styled.div`
 
     .carousel-track {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: center;
       width: 100%;
@@ -123,6 +126,38 @@ const MosaicGridStyles = styled.div`
           display: block;
           border-radius: 16px;
         }
+      }
+    }
+  }
+
+  .mobile-arrows {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 8px;
+    ${media.medium`display: none;`}
+
+    button {
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: default;
       }
     }
   }
@@ -285,7 +320,14 @@ const MosaicGrid = ({ items = [] }: { items: MediaProps[] }) => {
             </AnimatePresence>
             <button className="carousel-arrow right" onClick={next}>&#8594;</button>
           </div>
-        ) : (
+        ) : null}
+        {isCarousel && (
+          <div className="mobile-arrows">
+            <button onClick={prev}>&#8592;</button>
+            <button onClick={next}>&#8594;</button>
+          </div>
+        )}
+        {!isCarousel && (
           <div className="mosaic-grid-row">
             {items.map((item, index) => renderItem(item, index, `item-${index}`))}
           </div>

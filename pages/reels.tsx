@@ -2,13 +2,18 @@ import Layout from "components/Layout";
 import MosaicGrid from "components/home/MosaicGrid";
 import { NextSeo } from "next-seo";
 import styled from "styled-components";
+import { media } from "components/helpers";
 
 const ReelsPageStyles = styled.div`
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 120px);
+  padding: 24px 0 40px;
+  ${media.medium`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 120px);
+    padding: 40px 0;
+  `}
 `;
 
 const reels = [

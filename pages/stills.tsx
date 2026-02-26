@@ -27,14 +27,19 @@ import horizontalEight from "public/work/hor-8-min.jpg";
 import horizontalNine from "public/work/hor-9-min.jpg";
 
 import styled from "styled-components";
+import { media } from "components/helpers";
 import { StaticImageData } from "next/image";
 
 const StillPageStyles = styled.div`
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 120px);
+  padding: 24px 0 40px;
+  ${media.medium`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 120px);
+    padding: 40px 0;
+  `}
 `;
 
 type MediaProps = {
