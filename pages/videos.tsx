@@ -1,6 +1,7 @@
 import Layout from "components/Layout";
 import { NextSeo } from "next-seo";
 import styled from "styled-components";
+import { media } from "components/helpers";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -34,8 +35,10 @@ const VideoPageStyles = styled.div`
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    ${media.small`grid-template-columns: repeat(2, 1fr); gap: 20px;`}
+    ${media.medium`grid-template-columns: repeat(3, 1fr);`}
   }
 
   .video-item {

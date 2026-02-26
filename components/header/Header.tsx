@@ -5,6 +5,7 @@ import { media } from "components/helpers";
 import MobileMenu from "./MobileMenu";
 import { useEffect, useRef, useState } from "react";
 import Hamburger from "hamburger-react";
+import { useRouter } from "next/router";
 
 const HeaderStyles = styled.header`
   .full-header {
@@ -114,6 +115,13 @@ const Header = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleRouteChange = () => setIsMobileMenuOpen(false);
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => router.events.off("routeChangeStart", handleRouteChange);
+  }, [router]);
 
   useEffect(() => {
     if (!headerRef?.current?.offsetHeight) return;
