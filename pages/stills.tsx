@@ -2,9 +2,9 @@ import Layout from "components/Layout";
 import MosaicGrid from "components/home/MosaicGrid";
 import { NextSeo } from "next-seo";
 
-import scanTwo from "public/work/dantes_scans_2.JPG";
-import scanSix from "public/work/dantes_scans_6.JPG";
-import scanSeven from "public/work/dantes_scans_7.JPG";
+import scanTwo from "public/work/dantes_scans_2.jpg";
+import scanSix from "public/work/dantes_scans_6.jpg";
+import scanSeven from "public/work/dantes_scans_7.jpg";
 import imgTwo from "public/work/IMG_2414.jpg";
 import imgFive from "public/work/IMG_5551.jpg";
 import vertOne from "public/work/vert-1-min.jpg";
