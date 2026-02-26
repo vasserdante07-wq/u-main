@@ -16,8 +16,10 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "*": ["./*"],
-      "react": ["./node_modules/@types/react"]
+      "components/*": ["./components/*"],
+      "pages/*": ["./pages/*"],
+      "styles/*": ["./styles/*"],
+      "public/*": ["./public/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
