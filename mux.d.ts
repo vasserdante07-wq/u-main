@@ -1,3 +1,8 @@
+declare module '*.JPG' {
+  const content: import('next/image').StaticImageData;
+  export default content;
+}
+
 declare module '@mux/mux-player-react' {
   import * as React from 'react';
   interface MuxPlayerProps {

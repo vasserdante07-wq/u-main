@@ -23,7 +23,6 @@ import horizontalThree from "public/work/hor-3-min.jpg";
 import horizontalFour from "public/work/hor-4-min.jpg";
 import horizontalFive from "public/work/hor-5-min.jpg";
 import horizontalSix from "public/work/hor-6-min.jpg";
-import horizontalSeven from "public/work/hor-7-min.png";
 import horizontalEight from "public/work/hor-8-min.jpg";
 import horizontalNine from "public/work/hor-9-min.jpg";
 
