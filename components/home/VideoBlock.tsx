@@ -23,194 +23,162 @@ const VideoBlockStyles = styled.div`
       display: block;
       --media-object-fit: cover;
     }
-
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
   }
 `;
 
 const RADIUS = 130;
-
-const VS = `
-  attribute vec2 aPos;
-  void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
-`;
-
-const FS = `
-  precision mediump float;
-  uniform sampler2D uTex;
-  uniform vec2 uMouse;
-  uniform vec2 uRes;
-  uniform float uRadius;
-
-  void main() {
-    vec2 frag = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
-    vec2 delta = frag - uMouse;
-    float dist = length(delta);
-
-    if (dist >= uRadius) { discard; }
-
-    float t = dist / uRadius;
-    float tWarped = t * t;
-
-    vec2 sample = dist < 0.001
-      ? uMouse
-      : uMouse + normalize(delta) * tWarped * uRadius;
-
-    vec2 uv = vec2(sample.x / uRes.x, 1.0 - sample.y / uRes.y);
-    vec4 col = texture2D(uTex, uv);
-
-    float edge = smoothstep(1.0, 0.82, t);
-    gl_FragColor = vec4(col.rgb, edge);
-  }
-`;
+const MAP_W = 256;
+const MAP_H = 144;
+const FILTER_ID = "vb-bulge-filter";
+const FE_IMAGE_ID = "vb-bulge-fe-image";
 
 const VideoBlock = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const stateRef = useRef({
-    mouse: { x: 0, y: 0, active: false },
-    gl: null as WebGLRenderingContext | null,
-    program: null as WebGLProgram | null,
-    texture: null as WebGLTexture | null,
-    video: null as HTMLVideoElement | null,
-    uniforms: {} as Record<string, WebGLUniformLocation | null>,
-    raf: 0,
-  });
 
   useEffect(() => {
-    const canvas = canvasRef.current;
     const wrapper = wrapperRef.current;
-    if (!canvas || !wrapper) return;
-    const s = stateRef.current;
+    if (!wrapper) return;
 
-    function resize() {
-      if (!canvas || !wrapper) return;
-      canvas.width = wrapper.offsetWidth;
-      canvas.height = wrapper.offsetHeight;
-      s.gl?.viewport(0, 0, canvas.width, canvas.height);
+    const mapCanvas = document.createElement("canvas");
+    mapCanvas.width = MAP_W;
+    mapCanvas.height = MAP_H;
+    const mapCtx = mapCanvas.getContext("2d")!;
+
+    const feImage = document.getElementById(FE_IMAGE_ID) as SVGFEImageElement | null;
+    let player: HTMLElement | null = null;
+    let cursor = { x: 0, y: 0, active: false };
+    let rafId = 0;
+
+    function buildMap(cx: number, cy: number, W: number, H: number) {
+      const scaleX = MAP_W / W;
+      const scaleY = MAP_H / H;
+      const mcx = cx * scaleX;
+      const mcy = cy * scaleY;
+      const mr = RADIUS * scaleX;
+
+      const imageData = mapCtx.createImageData(MAP_W, MAP_H);
+      const data = imageData.data;
+
+      for (let py = 0; py < MAP_H; py++) {
+        for (let px = 0; px < MAP_W; px++) {
+          const dx = px - mcx;
+          const dy = py - mcy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          let r = 128;
+          let g = 128;
+
+          if (dist < mr && dist > 0.001) {
+            const t = dist / mr;
+            const sampleDist = t * t * mr;
+            const inv = 1 / dist;
+            const sampleX = mcx + dx * inv * sampleDist;
+            const sampleY = mcy + dy * inv * sampleDist;
+            const dispX = (sampleX - px) / scaleX;
+            const dispY = (sampleY - py) / scaleY;
+            const edge = t < 0.82 ? 1 : Math.max(0, (1 - t) / 0.18);
+            r = Math.max(0, Math.min(255, Math.round(((dispX * edge) / RADIUS + 0.5) * 255)));
+            g = Math.max(0, Math.min(255, Math.round(((dispY * edge) / RADIUS + 0.5) * 255)));
+          }
+
+          const i = (py * MAP_W + px) * 4;
+          data[i] = r;
+          data[i + 1] = g;
+          data[i + 2] = 0;
+          data[i + 3] = 255;
+        }
+      }
+
+      mapCtx.putImageData(imageData, 0, 0);
     }
-    resize();
-    window.addEventListener("resize", resize);
 
-    const gl = canvas.getContext("webgl", { premultipliedAlpha: false, alpha: true });
-    if (!gl) return;
-    s.gl = gl;
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(0, 0, 0, 0);
+    function update() {
+      rafId = 0;
+      if (!player) player = wrapper!.querySelector("mux-player") as HTMLElement;
+      if (!player) return;
 
-    function makeShader(type: number, src: string) {
-      const sh = gl!.createShader(type)!;
-      gl!.shaderSource(sh, src);
-      gl!.compileShader(sh);
-      return sh;
+      if (!cursor.active) {
+        player.style.filter = "";
+        return;
+      }
+
+      const rect = player.getBoundingClientRect();
+      const wRect = wrapper!.getBoundingClientRect();
+      const pcx = cursor.x - (rect.left - wRect.left);
+      const pcy = cursor.y - (rect.top - wRect.top);
+
+      buildMap(pcx, pcy, rect.width, rect.height);
+
+      if (feImage) {
+        const dataURL = mapCanvas.toDataURL();
+        feImage.setAttribute("href", dataURL);
+        feImage.setAttributeNS("http://www.w3.org/1999/xlink", "href", dataURL);
+      }
+
+      player.style.filter = `url(#${FILTER_ID})`;
     }
-
-    const prog = gl.createProgram()!;
-    gl.attachShader(prog, makeShader(gl.VERTEX_SHADER, VS));
-    gl.attachShader(prog, makeShader(gl.FRAGMENT_SHADER, FS));
-    gl.linkProgram(prog);
-    gl.useProgram(prog);
-    s.program = prog;
-
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-    const posLoc = gl.getAttribLocation(prog, "aPos");
-    gl.enableVertexAttribArray(posLoc);
-    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-
-    const tex = gl.createTexture()!;
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    s.texture = tex;
-
-    s.uniforms = {
-      uTex: gl.getUniformLocation(prog, "uTex"),
-      uMouse: gl.getUniformLocation(prog, "uMouse"),
-      uRes: gl.getUniformLocation(prog, "uRes"),
-      uRadius: gl.getUniformLocation(prog, "uRadius"),
-    };
 
     function onMouseMove(e: MouseEvent) {
       const rect = wrapper!.getBoundingClientRect();
-      const sx = canvas!.width / rect.width;
-      const sy = canvas!.height / rect.height;
-      s.mouse = {
-        x: (e.clientX - rect.left) * sx,
-        y: (e.clientY - rect.top) * sy,
-        active: true,
-      };
+      cursor = { x: e.clientX - rect.left, y: e.clientY - rect.top, active: true };
+      if (!rafId) rafId = requestAnimationFrame(update);
     }
+
     function onMouseLeave() {
-      s.mouse.active = false;
+      cursor.active = false;
+      if (!rafId) rafId = requestAnimationFrame(update);
     }
+
     wrapper.addEventListener("mousemove", onMouseMove);
     wrapper.addEventListener("mouseleave", onMouseLeave);
 
-    function findVideo(): HTMLVideoElement | null {
-      const mp = wrapper!.querySelector("mux-player");
-      if (!mp) return null;
-      return (
-        mp.querySelector("video") ??
-        (mp as any).shadowRoot?.querySelector("video") ??
-        null
-      );
-    }
-
-    function draw() {
-      s.raf = requestAnimationFrame(draw);
-      if (!s.gl || !s.program || !s.texture || !canvas) return;
-      s.gl.clear(s.gl.COLOR_BUFFER_BIT);
-      if (!s.mouse.active) return;
-      if (!s.video) s.video = findVideo();
-      const vid = s.video;
-      if (!vid || vid.readyState < 2) return;
-      s.gl.bindTexture(s.gl.TEXTURE_2D, s.texture);
-      try {
-        s.gl.texImage2D(s.gl.TEXTURE_2D, 0, s.gl.RGBA, s.gl.RGBA, s.gl.UNSIGNED_BYTE, vid);
-      } catch {
-        return;
-      }
-      s.gl.uniform1i(s.uniforms.uTex, 0);
-      s.gl.uniform2f(s.uniforms.uMouse, s.mouse.x, s.mouse.y);
-      s.gl.uniform2f(s.uniforms.uRes, canvas.width, canvas.height);
-      s.gl.uniform1f(s.uniforms.uRadius, RADIUS);
-      s.gl.drawArrays(s.gl.TRIANGLE_STRIP, 0, 4);
-    }
-    draw();
-
     return () => {
-      window.removeEventListener("resize", resize);
       wrapper.removeEventListener("mousemove", onMouseMove);
       wrapper.removeEventListener("mouseleave", onMouseLeave);
-      cancelAnimationFrame(s.raf);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 
   return (
     <VideoBlockStyles>
+      <svg
+        width="0"
+        height="0"
+        style={{ position: "absolute", overflow: "hidden" }}
+      >
+        <defs>
+          <filter
+            id={FILTER_ID}
+            x="0%"
+            y="0%"
+            width="100%"
+            height="100%"
+            colorInterpolationFilters="sRGB"
+          >
+            <feImage
+              id={FE_IMAGE_ID}
+              result="warp-map"
+              preserveAspectRatio="none"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="warp-map"
+              scale={RADIUS}
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+      </svg>
+
       <div className="player-wrapper wrapper" ref={wrapperRef}>
         <MuxPlayer
           playbackId="00znJldwdUxoxVkJhL9aDqaEIP9TH6ya53aOot400QvRU"
-          crossOrigin="anonymous"
           muted
           autoPlay
           loop
           playsInline
           controls={false}
         />
-        <canvas ref={canvasRef} />
       </div>
     </VideoBlockStyles>
   );

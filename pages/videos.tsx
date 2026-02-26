@@ -20,6 +20,10 @@ const videos = [
 
 const VideoPageStyles = styled.div`
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
   padding: 40px 0;
 
   .carousel-wrapper {
