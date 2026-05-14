@@ -98,19 +98,13 @@ const MosaicGridStyles = styled.div`
     }
 
     .carousel-track {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
       width: 100%;
-      margin: 0 -20px;
 
+      .image-container,
       .video-container {
-        flex: 0 0 50%;
-        padding: 0 20px;
-        margin-bottom: 40px;
-        ${media.medium`flex: 0 0 20%;`}
-
         button {
           width: 100%;
           padding: 0;
@@ -122,6 +116,7 @@ const MosaicGridStyles = styled.div`
         img {
           width: 100%;
           aspect-ratio: 9 / 16;
+          max-height: calc(100vh - 220px);
           object-fit: cover;
           display: block;
           border-radius: 16px;
@@ -224,7 +219,7 @@ const MosaicGridStyles = styled.div`
   }
 `;
 
-const VISIBLE = 4;
+const VISIBLE = 3;
 
 const MosaicGrid = ({ items = [] }: { items: MediaProps[] }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -268,7 +263,11 @@ const MosaicGrid = ({ items = [] }: { items: MediaProps[] }) => {
       return (
         <div className={clsx("image-container", item?.className)} key={key}>
           <button onClick={() => toggleModal(realIndex)}>
-            <Image src={item.image} alt="" />
+            <img
+              src={typeof item.image === "string" ? item.image : item.image.src}
+              alt=""
+              style={{ width: "100%", aspectRatio: "9/16", objectFit: "cover", display: "block", borderRadius: "16px" }}
+            />
           </button>
         </div>
       );

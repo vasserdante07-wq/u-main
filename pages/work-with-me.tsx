@@ -1,38 +1,37 @@
 import Layout from "components/Layout";
 import { NextSeo } from "next-seo";
 import styled from "styled-components";
-import Image from "next/image";
-import logo from "public/logo.png";
 
 const WorkWithMeStyles = styled.div`
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  min-height: calc(100vh - 120px);
 
   .content {
     text-align: center;
-    padding: 20px 20px;
+    padding: 20px 20px 20px;
     max-width: 600px;
 
     .logo {
-      width: 120px !important;
+      width: 80px !important;
       height: auto !important;
       margin: 0 auto 16px;
       display: block;
     }
 
     h1 {
-      font-size: 2rem;
-      margin-bottom: 12px;
+      font-size: 3rem;
+      margin-bottom: 16px;
       text-transform: lowercase;
       letter-spacing: 0.05em;
     }
 
     p {
-      font-size: 1rem;
+      font-size: 1.3rem;
       line-height: 1.8;
-      margin-bottom: 32px;
+      margin-bottom: 40px;
       color: rgba(0, 0, 0, 0.65);
     }
 
@@ -42,10 +41,10 @@ const WorkWithMeStyles = styled.div`
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
 
       li {
-        font-size: 1rem;
+        font-size: 1.3rem;
 
         a {
           color: inherit;
@@ -74,7 +73,7 @@ const WorkWithMePage = () => {
       <NextSeo title="work with me" />
       <WorkWithMeStyles>
         <div className="content">
-          <Image src={logo} alt="logo" className="logo" width={120} height={120} />
+          <img src="/logo.png" alt="logo" className="logo" />
           <h1>work with me</h1>
           <p>
             Available for editing, videography, and any other creative projects.

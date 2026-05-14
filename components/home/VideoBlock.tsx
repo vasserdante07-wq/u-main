@@ -21,13 +21,14 @@ const VideoBlockStyles = styled.div`
   .player-wrapper {
     width: 100%;
     position: relative;
-    ${media.medium`width: auto; max-width: 55%;`}
+    ${media.medium`width: 90%; max-width: 1100px;`}
 
-    mux-player {
+    video {
       width: 100%;
       aspect-ratio: 16 / 9;
       display: block;
-      --media-object-fit: cover;
+      object-fit: cover;
+      border-radius: 20px;
     }
   }
 `;

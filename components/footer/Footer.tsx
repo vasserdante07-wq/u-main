@@ -1,9 +1,14 @@
 import styled from "styled-components";
 
 const FooterStyles = styled.footer`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   padding: 25px 0;
   border-top: 1px solid #000;
   text-align: center;
+  z-index: 100;
 
   p {
     font-size: 1.1rem;
