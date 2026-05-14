@@ -177,13 +177,13 @@ const VideoBlock = () => {
       </svg>
 
       <div className="player-wrapper wrapper" ref={wrapperRef}>
-        <MuxPlayer
-          playbackId="00znJldwdUxoxVkJhL9aDqaEIP9TH6ya53aOot400QvRU"
+        <video
+          src="https://stream.mux.com/00znJldwdUxoxVkJhL9aDqaEIP9TH6ya53aOot400QvRU.m3u8"
           muted
           autoPlay
           loop
           playsInline
-          controls={false}
+          style={{ width: "100%", aspectRatio: "16/9", display: "block" }}
         />
       </div>
     </VideoBlockStyles>
