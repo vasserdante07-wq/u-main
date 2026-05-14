@@ -1,11 +1,7 @@
-import dynamic from "next/dynamic";
+import MuxPlayer from "@mux/mux-player-react/lazy";
 import styled from "styled-components";
 import { media } from "components/helpers";
 import { useRef, useEffect } from "react";
-
-const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), {
-  ssr: false,
-});
 
 const VideoBlockStyles = styled.div`
   position: relative;
@@ -178,13 +174,13 @@ const VideoBlock = () => {
       </svg>
 
       <div className="player-wrapper wrapper" ref={wrapperRef}>
-        <video
-          src="https://stream.mux.com/00znJldwdUxoxVkJhL9aDqaEIP9TH6ya53aOot400QvRU.m3u8"
+        <MuxPlayer
+          playbackId="00znJldwdUxoxVkJhL9aDqaEIP9TH6ya53aOot400QvRU"
           muted
           autoPlay
           loop
           playsInline
-          style={{ width: "100%", aspectRatio: "16/9", display: "block" }}
+          style={{ width: "100%", aspectRatio: "16/9", display: "block", borderRadius: "20px", overflow: "hidden" }}
         />
       </div>
     </VideoBlockStyles>
