@@ -15,3 +15,7 @@ node_modules/
 *.log
 .vercel
 .env*.local
+
+# macOS metadata files
+._*
+.DS_Store
