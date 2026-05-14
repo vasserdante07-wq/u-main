@@ -19,14 +19,7 @@ const VideoBlockStyles = styled.div`
     position: relative;
     ${media.medium`width: 90%; max-width: 1100px;`}
 
-    video {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      display: block;
-      object-fit: cover;
-      border-radius: 20px;
-    }
-  }
+}
 `;
 
 const RADIUS = 130;
